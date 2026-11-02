@@ -19,7 +19,8 @@ const BASE = "https://jsonplaceholder.typicode.com";
 const tombolTema = document.querySelector("#btn-tema");
 
 /**
- * Modul 7 · B.2: Mengubah tema tampilan dan menyimpan preferensi ke localStorage*/
+ * Modul 7 · B.2: Mengubah tema tampilan dan menyimpan preferensi ke localStorage
+ */
 function toggleTema() {
     const temaGelapAktif = document.body.classList.toggle("dark-mode");
     if (tombolTema) {
@@ -63,12 +64,17 @@ function muatPreferensiTema() {
     }
 }
 muatPreferensiTema();
+
+
 /* ==========================================================================
    MODUL 3 · B.4 & MODUL 7 · B.7 — ELEMEN ASIDE (TAMPIL/SEMBUNYI & PERSISTENSI)
    ========================================================================== */
 const tombolKontak = document.querySelector("#btn-kontak");
 const sectionKontak = document.querySelector("#kontak");
-/** Memuat status tampil/sembunyi aside dari localStorage*/
+
+/**
+ *  Memuat status tampil/sembunyi aside dari localStorage
+ */
 function muatPreferensiAside() {
     try {
         const statusAside = localStorage.getItem("asideTampil");
@@ -106,12 +112,18 @@ if (tombolKontak && sectionKontak) {
     });
 }
 
+
 /* ==========================================================================
    MODUL 3 · B.4 & MODUL 7 · B.4 — PORTOFOLIO / ARTIKEL & JUMLAH LIKE
    MODUL 8 · B.2-B.5 — DATA PENGALAMAN DARI API (FETCH + JSON)
    ========================================================================== */
-// Data pengalaman 
-const daftarPengalaman = [
+
+// Modul 8 · B.3: Data statis Modul 3 DINONAKTIFKAN (diganti data dari API).
+// Array di bawah kini hanya menampung item yang ditambahkan lewat form "Tambah Pengalaman".
+const daftarPengalaman = [];
+
+/* Data statis Modul 3 (dinonaktifkan, disimpan sebagai arsip)
+const dataStatisModul3 = [
     {
         judul: "CO Lektor - Komunitas Paingan",
         periode: "Februari 2026 - Sekarang",
@@ -128,11 +140,13 @@ const daftarPengalaman = [
         deskripsi: "Kepanitiaan Wayangan 2026 menyelenggarakan pagelaran seni budaya wayang."
     }
 ];
+*/
 
 const containerPengalaman = document.querySelector(".daftar-artikel");
 
 /**
- * Modul 7 · B.4: Helper mengambil data semuaLike dari localStorage dengan aman*/
+ * Modul 7 · B.4: Helper mengambil data semuaLike dari localStorage dengan aman
+ */
 function getSemuaLike() {
     try {
         return JSON.parse(localStorage.getItem("semuaLike")) || {};
@@ -143,7 +157,8 @@ function getSemuaLike() {
 }
 
 /**
- * Modul 7 · B.4: Menyimpan jumlah like per judul artikel ke localStorage */
+ * Modul 7 · B.4: Menyimpan jumlah like per judul artikel ke localStorage
+ */
 function simpanLike(judulArtikel, jumlah) {
     try {
         const semuaLike = getSemuaLike();
@@ -154,7 +169,9 @@ function simpanLike(judulArtikel, jumlah) {
     }
 }
 
-/*Fungsi render kartu pengalaman ke DOM*/
+/**
+ * Fungsi render kartu pengalaman ke DOM
+ */
 function renderPengalaman(data) {
     if (!containerPengalaman) return;
 
@@ -211,7 +228,29 @@ function renderPengalaman(data) {
    Dilengkapi indikator loading spinner (B.7) dan penanganan error (B.5).
    ========================================================================== */
 
-/* Modul 8 · B.7 (Tugas Mandiri): Tampilkan/sembunyikan indikator loading spinner*/
+/**
+ * Modul 8 · B.2: Fetch dasar ke console untuk menguji koneksi API.
+ * Buka DevTools > Console (array 3 objek post) dan Network (status 200).
+ * Boleh dihapus setelah screenshot bukti diambil.
+ */
+async function ujiFetch() {
+    const response = await fetch(BASE + "/posts?_limit=3");
+    const data = await response.json();
+    console.log(data);
+}
+ujiFetch();
+
+/**
+ * Modul 8 · B.5: URL endpoint artikel.
+ * Untuk menguji penanganan error, buka halaman dengan tambahan "?uji=error"
+ * (contoh: profil_diri_255314015.html?uji=error) sehingga URL API sengaja salah (404).
+ */
+const modeUjiError = new URLSearchParams(window.location.search).get("uji") === "error";
+const URL_ARTIKEL = BASE + (modeUjiError ? "/postsxyz" : "/posts") + "?_limit=5";
+
+/**
+ * Modul 8 · B.7 (Tugas Mandiri): Tampilkan/sembunyikan indikator loading spinner
+ */
 function tampilkanLoading(idElemen) {
     const el = document.querySelector("#" + idElemen);
     if (el) el.classList.remove("tersembunyi");
@@ -222,7 +261,9 @@ function sembunyikanLoading(idElemen) {
     if (el) el.classList.add("tersembunyi");
 }
 
-/*Modul 8 · B.5: Tampilkan pesan error fetch yang ramah di halaman*/
+/**
+ * Modul 8 · B.5: Tampilkan pesan error fetch yang ramah di halaman
+ */
 function tampilkanErrorFetch(pesan) {
     const el = document.querySelector("#pesan-error-fetch");
     if (el) {
@@ -243,14 +284,14 @@ function sembunyikanErrorFetch() {
  * Modul 8 · B.3: Fungsi utama mengambil data artikel dari API
  * B.4: Indikator loading
  * B.5: Penanganan error (try-catch + cek response.ok)
- * B.7: Spinner CSS 
+ * B.7: Spinner CSS (bukan teks polos)
  */
 async function muatArtikelDariAPI() {
     tampilkanLoading("loading");             // B.4 & B.7: Tampilkan spinner
     sembunyikanErrorFetch();
 
     try {
-        const response = await fetch(BASE + "/posts?_limit=5");
+        const response = await fetch(URL_ARTIKEL);
 
         // B.5: Cek status HTTP — fetch tidak otomatis melempar error pada 404
         if (!response.ok) {
@@ -281,10 +322,8 @@ async function muatArtikelDariAPI() {
 
 
 if (containerPengalaman) {
-    // Render data pengalaman lokal terlebih dahulu
-    daftarPengalaman.forEach(renderPengalaman);
-
-    // Modul 8: Kemudian muat data tambahan dari API
+    // Modul 8 · B.3: forEach data statis Modul 3 dinonaktifkan, diganti data dari API
+    // daftarPengalaman.forEach(renderPengalaman);
     muatArtikelDariAPI();
 
     containerPengalaman.addEventListener("mouseover", (e) => {
@@ -328,10 +367,12 @@ if (containerPengalaman) {
         const artikel = tombolHapus.closest("article");
         if (!artikel) return;
 
-        const semuaArtikel = Array.from(containerPengalaman.querySelectorAll("article"));
-        const indexPengalaman = semuaArtikel.indexOf(artikel);
-        if (indexPengalaman !== -1 && indexPengalaman < daftarPengalaman.length) {
-            daftarPengalaman.splice(indexPengalaman, 1);
+        // Hapus juga dari array item buatan sendiri (jika ada), berdasarkan judul
+        const h3Hapus = artikel.querySelector("h3");
+        const judulHapus = h3Hapus ? h3Hapus.textContent.trim() : "";
+        const idx = daftarPengalaman.findIndex((p) => p.judul === judulHapus);
+        if (idx !== -1) {
+            daftarPengalaman.splice(idx, 1);
         }
         artikel.remove();
     });
@@ -407,7 +448,9 @@ function sembunyikanErrorKomentar() {
     }
 }
 
-/*Modul 7 · B.5: Helper mengambil data komentar dari localStorage dengan aman*/
+/**
+ * Modul 7 · B.5: Helper mengambil data komentar dari localStorage dengan aman
+ */
 function getDaftarKomentar() {
     try {
         return JSON.parse(localStorage.getItem("komentar")) || [];
@@ -417,7 +460,9 @@ function getDaftarKomentar() {
     }
 }
 
-/*Modul 7 · B.5: Menyimpan satu komentar baru ke localStorage*/
+/**
+ * Modul 7 · B.5: Menyimpan satu komentar baru ke localStorage
+ */
 function simpanKomentar(nama, pesan) {
     try {
         const daftar = getDaftarKomentar();
@@ -428,7 +473,9 @@ function simpanKomentar(nama, pesan) {
     }
 }
 
-/* Helper membuat elemen <li> komentar dengan format yang konsisten*/
+/**
+ * Helper membuat elemen <li> komentar dengan format yang konsisten
+ */
 function buatElemenKomentar(nama, pesan) {
     const itemKomentar = document.createElement("li");
 
@@ -457,7 +504,9 @@ function buatElemenKomentar(nama, pesan) {
     return itemKomentar;
 }
 
-/* Modul 7 · B.5: Memuat seluruh komentar tersimpan ke <ul id="daftar-komentar">*/
+/**
+ * Modul 7 · B.5: Memuat seluruh komentar tersimpan ke <ul id="daftar-komentar">
+ */
 function muatKomentar() {
     if (!daftarKomentar) return;
     daftarKomentar.innerHTML = "";
@@ -475,7 +524,10 @@ function muatKomentar() {
    dan menampilkannya sebagai daftar komentar awal di halaman.
    ========================================================================== */
 
-/*Modul 8 · B.7: Mengambil komentar dari API dan menampilkan di daftar komentar*/
+/**
+ * Modul 8 · B.7: Mengambil komentar dari API dan menampilkan di daftar komentar
+ * Dibungkus try-catch dengan pesan error yang jelas bagi pengguna
+ */
 async function muatKomentarDariAPI() {
     tampilkanLoading("loading-komentar");    // Tampilkan spinner komentar
 
@@ -646,7 +698,7 @@ if (formKomentar && daftarKomentar) {
                     return;
                 }
                 // Jika komentar lokal, hapus juga dari localStorage
-                const semuaLiLokal = Array.from(daftarKomentar.querySelectorAll("li:not(.komentar-api)"));
+                const semuaLiLokal = Array.from(daftarKomentar.querySelectorAll("li:not(.komentar-api):not(.komentar-error)"));
                 const index = semuaLiLokal.indexOf(item);
                 if (index !== -1) {
                     const daftar = getDaftarKomentar();
